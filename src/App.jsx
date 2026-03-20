@@ -569,6 +569,7 @@ function TimelineExplorer({
     getTimelineYearFromIndex(visibleEndYearIndex),
   );
   const eventSegments = segments.filter((segment) => segment.type === 'event');
+  const trackCenterPercent = 60;
   const scaledTrackHeight = baseRibbonHeight * visualScale;
   const renderedSegmentWidth = yearWidth * visualScale;
   const zoomOutProgress = Number(
@@ -1061,13 +1062,13 @@ function TimelineExplorer({
                   {yearMarkers.map((marker, index) => (
                     <div
                       key={`year-marker-${marker.year}-${index}`}
-                      className="timeline-year-marker"
-                      style={{
-                        left: `${marker.center}px`,
-                        bottom: `calc(50% + ${scaledTrackHeight / 2}px - 6px)`,
-                        '--timeline-year-line-height': `${yearMarkerLineHeight}px`,
-                        '--timeline-year-font-size': `${yearMarkerFontSize}px`,
-                        '--timeline-year-badge-height': `${yearMarkerBadgeHeight}px`,
+                    className="timeline-year-marker"
+                    style={{
+                      left: `${marker.center}px`,
+                      bottom: `calc(${100 - trackCenterPercent}% + ${scaledTrackHeight / 2}px - 6px)`,
+                      '--timeline-year-line-height': `${yearMarkerLineHeight}px`,
+                      '--timeline-year-font-size': `${yearMarkerFontSize}px`,
+                      '--timeline-year-badge-height': `${yearMarkerBadgeHeight}px`,
                         '--timeline-year-badge-pad-x': `${yearMarkerPadX}px`,
                         '--timeline-year-marker-gap': `${yearMarkerGap}px`,
                         '--timeline-year-marker-opacity': outsideYearProgress,
@@ -1085,71 +1086,72 @@ function TimelineExplorer({
               <div
                 className="timeline-track"
                 style={{
+                  top: `${trackCenterPercent}%`,
                   left: `${surfaceInset}px`,
                   width: `${ribbonWidth}px`,
-                height: `${baseRibbonHeight}px`,
-                transform: `translateY(-50%) scale(${visualScale})`,
-              }}
-            >
-              {segments.map((segment, index) => {
-                if (segment.type === 'gap') {
+                  height: `${baseRibbonHeight}px`,
+                  transform: `translateY(-50%) scale(${visualScale})`,
+                }}
+              >
+                {segments.map((segment, index) => {
+                  if (segment.type === 'gap') {
+                    return (
+                      <div
+                        key={`gap-${segment.startYear}-${segment.endYear}-${index}`}
+                        className="timeline-segment timeline-segment--gap"
+                        style={{
+                          left: `${segment.left}px`,
+                          width: `${segment.width}px`,
+                        }}
+                      >
+                        {segment.width > 120 ? (
+                          <span className="timeline-segment__gap-label">
+                            {formatTimelineYearRange(segment.startYear, segment.endYear)}
+                          </span>
+                        ) : null}
+                      </div>
+                    );
+                  }
+
                   return (
-                    <div
-                      key={`gap-${segment.startYear}-${segment.endYear}-${index}`}
-                      className="timeline-segment timeline-segment--gap"
+                    <button
+                      key={`event-${segment.group.year}-${index}`}
+                      type="button"
+                      className={`timeline-segment timeline-segment--event timeline-segment--${segment.colorVariant}${
+                        index === 0 ? ' timeline-segment--start' : ''
+                      }`}
                       style={{
                         left: `${segment.left}px`,
                         width: `${segment.width}px`,
                       }}
+                      onClick={() => onActiveYearChange(segment.group.year)}
                     >
-                      {segment.width > 120 ? (
-                        <span className="timeline-segment__gap-label">
-                          {formatTimelineYearRange(segment.startYear, segment.endYear)}
-                        </span>
-                      ) : null}
-                    </div>
-                  );
-                }
-
-                return (
-                  <button
-                    key={`event-${segment.group.year}-${index}`}
-                    type="button"
-                    className={`timeline-segment timeline-segment--event timeline-segment--${segment.colorVariant}${
-                      index === 0 ? ' timeline-segment--start' : ''
-                    }`}
-                    style={{
-                      left: `${segment.left}px`,
-                      width: `${segment.width}px`,
-                    }}
-                    onClick={() => onActiveYearChange(segment.group.year)}
-                  >
-                    <div className="timeline-segment__content">
-                      {showInlineYear ? (
-                        <span
-                          className="timeline-segment__year"
-                          style={{
-                            opacity: 1,
-                          }}
-                        >
-                          {formatTimelineYear(segment.group.year)}
-                        </span>
-                      ) : null}
-                      <div className="timeline-segment__events">
-                        {segment.group.entries.map((entry, entryIndex) => (
+                      <div className="timeline-segment__content">
+                        {showInlineYear ? (
                           <span
-                            key={`${segment.group.year}-${entry.title}-${entryIndex}`}
-                            className="timeline-segment__event-name timeline-segment__event-name--stacked"
+                            className="timeline-segment__year"
+                            style={{
+                              opacity: 1,
+                            }}
                           >
-                            {entry.title}
+                            {formatTimelineYear(segment.group.year)}
                           </span>
-                        ))}
+                        ) : null}
+                        <div className="timeline-segment__events">
+                          {segment.group.entries.map((entry, entryIndex) => (
+                            <span
+                              key={`${segment.group.year}-${entry.title}-${entryIndex}`}
+                              className="timeline-segment__event-name timeline-segment__event-name--stacked"
+                            >
+                              {entry.title}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                    </button>
+                  );
+                })}
+              </div>
           </div>
         </div>
       </div>

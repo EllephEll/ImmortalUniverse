@@ -877,7 +877,7 @@ h3 {
 .timeline-surface {
   position: relative;
   width: 100%;
-  height: clamp(300px, 38vw, 380px);
+  height: clamp(360px, 44vw, 470px);
   border-radius: 30px;
   overflow: hidden;
   background:
