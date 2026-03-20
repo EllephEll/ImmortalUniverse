@@ -569,7 +569,9 @@ function TimelineExplorer({
     getTimelineYearFromIndex(visibleEndYearIndex),
   );
   const yearMarkerScale =
-    visualScale < 1 ? Number(Math.min(1.8, 1 / Math.sqrt(Math.max(visualScale, 0.2))).toFixed(2)) : 1;
+    visualScale < 1
+      ? Number(Math.min(2.35, 1.22 / Math.sqrt(Math.max(visualScale, 0.18))).toFixed(2))
+      : 1.08;
   const activeGroup =
     groupedTimelineEntries.find((group) => group.year === activeYear) ?? groupedTimelineEntries[0];
   const jumpSuggestions = findTimelineYearSuggestions(jumpQuery, groupedTimelineEntries);
@@ -1059,10 +1061,10 @@ function TimelineExplorer({
                     onClick={() => onActiveYearChange(segment.group.year)}
                   >
                     <div className="timeline-segment__year-marker" aria-hidden="true">
-                      <span className="timeline-segment__year-line" />
                       <span className="timeline-segment__year-badge">
                         {formatTimelineYear(segment.group.year)}
                       </span>
+                      <span className="timeline-segment__year-line" />
                     </div>
                     <div className="timeline-segment__content">
                       <div className="timeline-segment__events">
