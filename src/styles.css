@@ -168,11 +168,11 @@ select {
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--teal), var(--amber));
+  background: linear-gradient(145deg, #4f0910 0%, #7b0d18 38%, #ad1628 72%, #d4463a 100%);
   color: #fff;
   font-weight: 800;
   letter-spacing: 0.02em;
-  box-shadow: 0 16px 32px rgba(47, 143, 145, 0.22);
+  box-shadow: 0 16px 32px rgba(123, 13, 24, 0.28);
 }
 
 .site-nav {
