@@ -577,6 +577,7 @@ function TimelineExplorer({
   const insideYearProgress = Number(
     Math.max(0, Math.min(1, (renderedSegmentWidth - 115) / 115)).toFixed(2),
   );
+  const showInlineYear = insideYearProgress >= 0.32;
   const outsideYearProgress = Number((1 - insideYearProgress).toFixed(2));
   const yearMarkerLineHeight = Number(
     Math.max(0, outsideYearProgress * (24 + zoomOutProgress * 22)).toFixed(2),
@@ -1055,30 +1056,32 @@ function TimelineExplorer({
                 width: `${scrollCanvasWidth}px`,
               }}
             >
-              <div className="timeline-year-marker-layer" aria-hidden="true">
-                {yearMarkers.map((marker, index) => (
-                  <div
-                    key={`year-marker-${marker.year}-${index}`}
-                    className="timeline-year-marker"
-                    style={{
-                      left: `${marker.center}px`,
-                      bottom: `calc(50% + ${scaledTrackHeight / 2}px - 6px)`,
-                      '--timeline-year-line-height': `${yearMarkerLineHeight}px`,
-                      '--timeline-year-font-size': `${yearMarkerFontSize}px`,
-                      '--timeline-year-badge-height': `${yearMarkerBadgeHeight}px`,
-                      '--timeline-year-badge-pad-x': `${yearMarkerPadX}px`,
-                      '--timeline-year-marker-gap': `${yearMarkerGap}px`,
-                      '--timeline-year-marker-opacity': outsideYearProgress,
-                      '--timeline-year-marker-shift': `${yearMarkerShift}px`,
-                    }}
-                  >
-                    <span className="timeline-year-marker__badge">
-                      {formatTimelineYear(marker.year)}
-                    </span>
-                    <span className="timeline-year-marker__line" />
-                  </div>
-                ))}
-              </div>
+              {!showInlineYear ? (
+                <div className="timeline-year-marker-layer" aria-hidden="true">
+                  {yearMarkers.map((marker, index) => (
+                    <div
+                      key={`year-marker-${marker.year}-${index}`}
+                      className="timeline-year-marker"
+                      style={{
+                        left: `${marker.center}px`,
+                        bottom: `calc(50% + ${scaledTrackHeight / 2}px - 6px)`,
+                        '--timeline-year-line-height': `${yearMarkerLineHeight}px`,
+                        '--timeline-year-font-size': `${yearMarkerFontSize}px`,
+                        '--timeline-year-badge-height': `${yearMarkerBadgeHeight}px`,
+                        '--timeline-year-badge-pad-x': `${yearMarkerPadX}px`,
+                        '--timeline-year-marker-gap': `${yearMarkerGap}px`,
+                        '--timeline-year-marker-opacity': outsideYearProgress,
+                        '--timeline-year-marker-shift': `${yearMarkerShift}px`,
+                      }}
+                    >
+                      <span className="timeline-year-marker__badge">
+                        {formatTimelineYear(marker.year)}
+                      </span>
+                      <span className="timeline-year-marker__line" />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
               <div
                 className="timeline-track"
                 style={{
@@ -1122,11 +1125,11 @@ function TimelineExplorer({
                     onClick={() => onActiveYearChange(segment.group.year)}
                   >
                     <div className="timeline-segment__content">
-                      {insideYearProgress > 0.04 ? (
+                      {showInlineYear ? (
                         <span
                           className="timeline-segment__year"
                           style={{
-                            opacity: insideYearProgress,
+                            opacity: 1,
                           }}
                         >
                           {formatTimelineYear(segment.group.year)}
