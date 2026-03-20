@@ -987,6 +987,50 @@ h3 {
   min-height: 100%;
 }
 
+.timeline-year-marker-layer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.timeline-year-marker {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--timeline-year-marker-gap, 8px);
+  opacity: var(--timeline-year-marker-opacity, 1);
+  transform: translate(-50%, var(--timeline-year-marker-shift, 0px));
+}
+
+.timeline-year-marker__line {
+  width: 2px;
+  height: var(--timeline-year-line-height, 34px);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(249, 245, 239, 0.96), rgba(249, 245, 239, 0.28));
+  box-shadow: 0 0 0 1px rgba(20, 32, 41, 0.05);
+}
+
+.timeline-year-marker__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--timeline-year-badge-height, 38px);
+  padding: 0 var(--timeline-year-badge-pad-x, 14px);
+  border-radius: 999px;
+  background: rgba(9, 15, 20, 0.9);
+  color: rgba(255, 248, 243, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
+  font-size: var(--timeline-year-font-size, 16px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .timeline-track {
   position: absolute;
   top: 50%;
@@ -1076,47 +1120,6 @@ h3 {
   padding-left: 24px;
 }
 
-.timeline-segment__year-marker {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% - 6px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  transform: translateX(-50%);
-  pointer-events: none;
-  z-index: 3;
-}
-
-.timeline-segment__year-line {
-  width: 2px;
-  height: 58px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, rgba(249, 245, 239, 0.96), rgba(249, 245, 239, 0.28));
-  box-shadow: 0 0 0 1px rgba(20, 32, 41, 0.05);
-}
-
-.timeline-segment__year-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 20px;
-  border-radius: 999px;
-  background: rgba(9, 15, 20, 0.9);
-  color: rgba(255, 248, 243, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.24);
-  font-size: 1.45rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  line-height: 1;
-  white-space: nowrap;
-  transform: scale(var(--timeline-year-marker-scale, 1));
-  transform-origin: center bottom;
-}
-
 .timeline-segment__year,
 .timeline-segment__gap-label {
   position: relative;
@@ -1131,6 +1134,9 @@ h3 {
 .timeline-segment__year {
   font-size: 1rem;
   line-height: 1;
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .timeline-segment__gap-label {

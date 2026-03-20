@@ -568,10 +568,48 @@ function TimelineExplorer({
     getTimelineYearFromIndex(visibleStartYearIndex),
     getTimelineYearFromIndex(visibleEndYearIndex),
   );
-  const yearMarkerScale =
-    visualScale < 1
-      ? Number(Math.min(2.35, 1.22 / Math.sqrt(Math.max(visualScale, 0.18))).toFixed(2))
-      : 1.08;
+  const eventSegments = segments.filter((segment) => segment.type === 'event');
+  const scaledTrackHeight = baseRibbonHeight * visualScale;
+  const renderedSegmentWidth = yearWidth * visualScale;
+  const zoomOutProgress = Number(
+    Math.max(0, Math.min(1, (0.8 - visualScale) / 0.45)).toFixed(2),
+  );
+  const insideYearProgress = Number(
+    Math.max(0, Math.min(1, (renderedSegmentWidth - 115) / 115)).toFixed(2),
+  );
+  const outsideYearProgress = Number((1 - insideYearProgress).toFixed(2));
+  const yearMarkerLineHeight = Number(
+    Math.max(0, outsideYearProgress * (24 + zoomOutProgress * 22)).toFixed(2),
+  );
+  const yearMarkerFontSize = Number(
+    (15 + outsideYearProgress * (1.5 + zoomOutProgress * 5)).toFixed(2),
+  );
+  const yearMarkerBadgeHeight = Number(
+    (36 + outsideYearProgress * (2 + zoomOutProgress * 8)).toFixed(2),
+  );
+  const yearMarkerPadX = Number((14 + outsideYearProgress * (1 + zoomOutProgress * 4)).toFixed(2));
+  const yearMarkerGap = Number(
+    Math.max(0, outsideYearProgress * (6 + zoomOutProgress * 4)).toFixed(2),
+  );
+  const yearMarkerShift = Number((insideYearProgress * 18).toFixed(2));
+  const minMarkerSpacing = Number((78 + zoomOutProgress * 38).toFixed(2));
+  const yearMarkers = [];
+  let lastMarkerCenter = Number.NEGATIVE_INFINITY;
+
+  eventSegments.forEach((segment) => {
+    const center = surfaceInset + (segment.left + segment.width / 2) * visualScale;
+
+    if (center - lastMarkerCenter < minMarkerSpacing) {
+      return;
+    }
+
+    yearMarkers.push({
+      center,
+      year: segment.group.year,
+    });
+    lastMarkerCenter = center;
+  });
+
   const activeGroup =
     groupedTimelineEntries.find((group) => group.year === activeYear) ?? groupedTimelineEntries[0];
   const jumpSuggestions = findTimelineYearSuggestions(jumpQuery, groupedTimelineEntries);
@@ -1010,18 +1048,42 @@ function TimelineExplorer({
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
           onPointerLeave={handlePointerUp}
-        >
-          <div
-            className="timeline-scroll-width"
-            style={{
-              width: `${scrollCanvasWidth}px`,
-            }}
           >
             <div
-              className="timeline-track"
+              className="timeline-scroll-width"
               style={{
-                left: `${surfaceInset}px`,
-                width: `${ribbonWidth}px`,
+                width: `${scrollCanvasWidth}px`,
+              }}
+            >
+              <div className="timeline-year-marker-layer" aria-hidden="true">
+                {yearMarkers.map((marker, index) => (
+                  <div
+                    key={`year-marker-${marker.year}-${index}`}
+                    className="timeline-year-marker"
+                    style={{
+                      left: `${marker.center}px`,
+                      bottom: `calc(50% + ${scaledTrackHeight / 2}px - 6px)`,
+                      '--timeline-year-line-height': `${yearMarkerLineHeight}px`,
+                      '--timeline-year-font-size': `${yearMarkerFontSize}px`,
+                      '--timeline-year-badge-height': `${yearMarkerBadgeHeight}px`,
+                      '--timeline-year-badge-pad-x': `${yearMarkerPadX}px`,
+                      '--timeline-year-marker-gap': `${yearMarkerGap}px`,
+                      '--timeline-year-marker-opacity': outsideYearProgress,
+                      '--timeline-year-marker-shift': `${yearMarkerShift}px`,
+                    }}
+                  >
+                    <span className="timeline-year-marker__badge">
+                      {formatTimelineYear(marker.year)}
+                    </span>
+                    <span className="timeline-year-marker__line" />
+                  </div>
+                ))}
+              </div>
+              <div
+                className="timeline-track"
+                style={{
+                  left: `${surfaceInset}px`,
+                  width: `${ribbonWidth}px`,
                 height: `${baseRibbonHeight}px`,
                 transform: `translateY(-50%) scale(${visualScale})`,
               }}
@@ -1056,17 +1118,20 @@ function TimelineExplorer({
                     style={{
                       left: `${segment.left}px`,
                       width: `${segment.width}px`,
-                      '--timeline-year-marker-scale': yearMarkerScale,
                     }}
                     onClick={() => onActiveYearChange(segment.group.year)}
                   >
-                    <div className="timeline-segment__year-marker" aria-hidden="true">
-                      <span className="timeline-segment__year-badge">
-                        {formatTimelineYear(segment.group.year)}
-                      </span>
-                      <span className="timeline-segment__year-line" />
-                    </div>
                     <div className="timeline-segment__content">
+                      {insideYearProgress > 0.04 ? (
+                        <span
+                          className="timeline-segment__year"
+                          style={{
+                            opacity: insideYearProgress,
+                          }}
+                        >
+                          {formatTimelineYear(segment.group.year)}
+                        </span>
+                      ) : null}
                       <div className="timeline-segment__events">
                         {segment.group.entries.map((entry, entryIndex) => (
                           <span
