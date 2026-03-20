@@ -14,7 +14,7 @@ import {
 } from './data/universe';
 
 const STORAGE_KEYS = {
-  content: 'immortal-universe-content-v1',
+  content: 'immortal-universe-content-v2',
   session: 'immortal-universe-session-v1',
 };
 const CONTENT_SCHEMA_VERSION = 5;
